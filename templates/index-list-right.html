@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<section class="section">
+   <div class="container">
+      <div class="row">
+         <div class="col-lg-8  mb-5 mb-lg-0">
+            <!-- <form action="{% url 'search' %}" method="POST">
+               {% csrf_token %}
+               <button type="submit" class="btn btn-primary w-30 mb-4"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-sort-down" viewBox="0 0 16 16">
+                  <path d="M3.5 2.5a.5.5 0 0 0-1 0v8.793l-1.146-1.147a.5.5 0 0 0-.708.708l2 1.999.007.007a.497.497 0 0 0 .7-.006l2-2a.5.5 0 0 0-.707-.708L3.5 11.293zm3.5 1a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5M7.5 6a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1zm0 3a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1zm0 3a.5.5 0 0 0 0 1h1a.5.5 0 0 0 0-1z"/>
+                </svg></button>
+            </form> -->
+            {% for post in page_obj %}
+            <article class="row mb-5">
+               <div class="col-md-4 mb-4 mb-md-0">
+                  <div class="post-slider slider-sm">
+                     <img loading="lazy" src="{{ post.image.url }}" class="img-fluid" alt="post-thumb"
+                        style="height:200px; object-fit: cover;">
+                  </div>
+               </div>
+               <div class="col-md-8">
+                  <h3 class="h5"><a class="post-title" href="post-elements.html">{{ post.title }}</a></h3>
+                  <ul class="list-inline post-meta mb-2">
+                     <li class="list-inline-item"><i class="ti-user mr-2"></i>{{ post.auther }}
+                     </li>
+                     <li class="list-inline-item">Date {{ post.created_at }}</li>
+
+
+                     <li class="list-inline-item">Categories : <a href="{% url 'filter_category' slug=post.category.slug %}" class="ml-1">{{ post.category.name }} </a>
+                     </li>
+                     <li class="list-inline-item">Tags : <a href="#!" class="ml-1">
+                           {% for t in post.tag.all %}
+                           {{t.name}} </a>
+                     </li>
+                     {% endfor %}
+                  </ul>
+                  <p>{{ post.content }}</p> <a href="{% url 'post_detail' pk=post.id %}"
+                     class="btn btn-outline-primary">Continue Reading</a>
+               </div>
+            </article>
+            {% endfor %}
+            <div class="pagination">
+               <span class="step-links">
+                  {% if page_obj.has_previous %}
+                  <a href="?page=1">&laquo; first</a>
+                  <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+                  {% endif %}
+
+                  <span class="current">
+                     Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+                  </span>
+
+                  {% if page_obj.has_next %}
+                  <a href="?page={{ page_obj.next_page_number }}">next</a>
+                  <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+                  {% endif %}
+               </span>
+            </div>
+         </div>
+         <aside class="col-lg-4">
+            <!-- Search -->
+            <div class="widget">
+               <h5 class="widget-title"><span>Search</span></h5>
+               <form action="{% url 'search' %}" class="widget-search" method="GET">
+                  <input id="search-query" name="q" type="search" placeholder="Type & Hit Enter...">
+                  <button type="submit"><i class="ti-search"></i></button>
+               </form>
+
+            </div>
+            <!-- categories -->
+            <div class="widget">
+               <h5 class="widget-title"><span>Categories</span></h5>
+               <ul class="list-unstyled widget-list">
+
+                  {% for category in categories %}
+                  <li><a href="{% url 'filter_category' slug=category.slug %}" class="d-flex">{{ category.name }}</a></li>
+                  {% endfor %}
+
+               </ul>
+            </div>
+
+            <!-- tags -->
+            <div class="widget">
+               <h5 class="widget-title"><span>Tags</span></h5>
+               <ul class="list-inline ">
+
+                  {% for tag in tags %}
+                  <li style="  padding: 2px 10px;border: 1px solid #ddd;border-radius: 40px;display: inline !important;color: #696c6d;" class="list-inline-item"><a href="#!">{{ tag.name }}</a></li>
+                  {% endfor %}
+
+               </ul>
+            </div>
+         </aside>
+      </div>
+</section>
+{% endblock content %}

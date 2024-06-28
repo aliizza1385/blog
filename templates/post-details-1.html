@@ -1,0 +1,130 @@
+
+{% extends 'base.html' %}
+{% load static %}
+
+
+
+{% block content %}
+
+<section class="section">
+	<div class="container">
+		<article class="row mb-4">
+			<div class="col-lg-10 mx-auto mb-4">
+				<h1 class="h2 mb-3">{{ post.title }}</h1>
+				<ul class="list-inline post-meta mb-3">
+					<li class="list-inline-item"><i class="ti-user mr-2"></i><a href="author.html">{{ post.auther }}</a>
+					</li>
+					<li class="list-inline-item">Date : {{ post.created_at }}</li>
+					<li class="list-inline-item">Categories : <a href="#!" class="ml-1">{{ post.category.name }} </a>
+					</li>
+					<li class="list-inline-item">Tags : <a href="#!" class="ml-1">
+					{% for t in post.tag.all %}
+							{{t.name}} </a>
+					</li>
+					{% endfor %}
+				</ul>
+			</div>
+			<div class="col-12 mb-3">
+				<div class="post-slider">
+					<img src="{{ post.image.url }}" class="img-fluid" alt="post-thumb">
+				</div>
+			</div>
+			<div class="col-lg-10 mx-auto">
+				<div class="content">
+					<p>{{ post.content }}</p>
+
+				</div>
+			</div>
+		</article>
+	</div>
+</section>
+<div class="container">
+	<div class="">
+		<div class="col-lg-9 col-md-12 ">
+			<div class="mb-5 border-top mt-4 pt-5">
+				
+				<h3 class="mb-4">Comments</h3>
+				{% for comment in comments %}
+
+				<div class="media d-block d-sm-flex mb-4 pb-4">
+					<a class="d-inline-block mr-2 mb-3 mb-md-0" href="#">
+						<img src="{{ comment.user.image.url }}" class="mr-3 rounded-circle"
+							style="height: 100px;object-fit: cover;width: 100px;" alt="">
+					</a>
+					<div class="media-body">
+						<a href="#!" class="h4 d-inline-block mb-3">{{ comment.user.username }}</a>
+
+						<p>{{ comment.content }}</p>
+
+						<span class="text-black-800 mr-3 font-weight-600">{{ comment.created_at }}</span>
+						{% if user.is_superuser %}
+						<a type="button" class="text-primary font-weight-600" data-bs-toggle="modal" data-bs-target="#exampleModal{{ comment.id }}" >Reply</a>
+						
+						{% endif %}
+					</div>
+					<div class="modal fade" id="exampleModal{{ comment.id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+						<div class="modal-dialog">
+						  <div class="modal-content">
+							<div class="modal-header">
+							  <h1 class="modal-title fs-5" id="exampleModalLabel">Reply</h1>
+							  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+							</div>
+							<form action="{% url 'replis' %}" method="POST">
+								{% csrf_token %}
+								<input type="hidden" name="comment_id" value="{{ comment.id }}">
+
+								<div class="mb-3 m-3">
+								  <label for="message-text" class="col-form-label">Message:</label>
+								  <textarea class="form-control" id="message-text" name="message"></textarea>
+								</div>
+								<div class="modal-footer">
+								  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+								  <button type="submit" class="btn btn-primary">Send Reply</button>
+								</div>
+							  </form>
+						  </div>
+						</div>
+					  </div>
+					
+				</div>
+				{% for Reply in comment.replies.all %}
+
+				<div class="media d-block d-sm-flex mb-5">
+					<div class="d-inline-block mr-2 mb-3 mb-md-0" href="#">
+						
+						<img class="mr-3" src="{% static 'images/arrow.png' %}" alt="">
+						<img style="height: 100px;object-fit: cover;width: 100px;" src="{{ Reply.user.image.url }}" class="mr-3 rounded-circle" alt="">
+					</div>
+					<div class="media-body">
+						<a href="#!" class="h4 d-inline-block mb-3">{{ Reply.user.username }}</a>
+  
+						<p>{{ Reply.content }}</p>
+  
+						<span class="text-black-800 mr-3 font-weight-600">{{ Reply.created_at }}</span>
+					</div>
+				</div>
+				{% endfor %}
+				{% endfor %}
+				
+
+			</div>
+		</div>
+		<div>
+			{% if user.is_authenticated %}
+			<form  method="POST">
+				{% csrf_token %}
+
+				<div class="row my-4">
+					<div class="form-group col-md-12">
+						<textarea class="form-control shadow-none" name="content" rows="7" required></textarea>
+					</div>
+				</div>
+				<button class="btn btn-primary " style="margin-bottom: 50px;" type="submit">Comment Now</button>
+			</form>				
+			{% endif %}
+				
+		</div>
+	</div>
+
+</div>
+{% endblock content %}
