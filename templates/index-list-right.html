@@ -31,13 +31,22 @@
                      <li class="list-inline-item">Categories : <a href="{% url 'filter_category' slug=post.category.slug %}" class="ml-1">{{ post.category.name }} </a>
                      </li>
                      <li class="list-inline-item">Tags : <a href="#!" class="ml-1">
-                           {% for t in post.tag.all %}
-                           {{t.name}} </a>
+                        {% for t in post.tag.all %}
+                        {{t.name}} </a>
+                        {% endfor %}
                      </li>
-                     {% endfor %}
+                     <li class="list-inline-item">Likes : <a href="{% url 'filter_category' slug=post.category.slug %}" class="ml-1">{{ post.likes_count }}  </a>
+                     </li>
+
                   </ul>
-                  <p>{{ post.content }}</p> <a href="{% url 'post_detail' pk=post.id %}"
-                     class="btn btn-outline-primary">Continue Reading</a>
+                  <p>{{ post.content }}</p> <a href="{% url 'post_detail' pk=post.id %}"class="btn btn-outline-primary">Continue Reading</a>
+                  {% if user.is_authenticated %} 
+                  
+                  <button onclick="window.location.href='{% url 'like_post' post.id %}'" class="btn btn-outline-primary" style="height: 40px;">
+                     Like {{ post.likes_count }}
+                 </button>
+                  {% endif %}
+                  
                </div>
             </article>
             {% endfor %}

@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404, reverse
 from .serializers import CommentSerializer, PostSerializer, UserSerializer, TagSerializer, CategorySerializer
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
-from .models import Post, Tag, Category, Comment, User, ReplyComment
+from .models import Post, Tag, Category, Comment, User, ReplyComment, Like
 from blog_project.settings import Host
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.hashers import make_password
@@ -297,3 +297,20 @@ def replis(request):
         print(Comment_id)
         messages.success(request, 'reply added', 'success')
         return redirect("main")
+    
+
+
+def like_post(request, post_id):
+    post = get_object_or_404(Post, pk=post_id)
+
+    user = request.user
+    if Like.objects.filter(user=user, post=post).exists():
+        Like.objects.filter(user=user, post=post).delete()
+        post.likes_count -= 1
+    else:
+        Like.objects.create(user=user, post=post)
+        post.likes_count += 1
+
+    post.save()
+
+    return redirect('main')
