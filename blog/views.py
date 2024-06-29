@@ -195,7 +195,7 @@ def Register(request):
         password = request.POST.get('password')
         otp_random = random.randrange(10000, 99999)
         try:
-            # Send OTP via email (you can customize the email content)
+
             if User.objects.filter(email=email, is_active = True).exists():
                 messages.error(request, 'The user already exists', 'danger')
                 return redirect('register')
@@ -206,6 +206,7 @@ def Register(request):
             else:
                 send_mail(subject='For otp in blog website', message=f'Your OTP is: {otp_random}', from_email=EMAIL_HOST_USER, recipient_list=[email])
                 hashed_password = make_password(password)
+
                 image = request.FILES.get('img')
                 user = User(username=username, email=email,
                             password=hashed_password, image=image, is_active=False)
@@ -222,12 +223,12 @@ def Register(request):
     return render(request, 'register.html')
 
 
-def verify(request):
+def verify_register(request):
     emali_from_session = request.session.get('email')
     if request.method == 'POST':
         otp_code = request.POST.get('otp_code')
-        email = request.POST.get('email')
-        user = get_object_or_404(User, email=email)
+        # email = request.POST.get('email')
+        user = get_object_or_404(User, email=emali_from_session)
         # we get information like string we must change that to int
         otp_code = int(otp_code)
         # we must have otp_random,emali we save that in register fuction
@@ -266,16 +267,46 @@ def main_left(request):
 
 def Login(request):
     if request.method == 'POST':
-        U = request.POST.get('username')
+        E = request.POST.get('email')
         P = request.POST.get('password')
-        user = authenticate(request, username=U, password=P)
+
+        request.session['email_login'] = E
+        request.session['password_login'] = P
+        otp_random = random.randrange(10000, 99999)
+        send_mail(subject='For otp login in blog website', message=f'Your OTP is: {otp_random}', from_email=EMAIL_HOST_USER, recipient_list=[E])
+
+        request.session['otp_code_login'] = otp_random
+
+        return render(request,'verify_email_login.html')
+    
+    return render(request, 'customer_login.html')
+
+
+def verify_login(request):
+    email_session = request.session.get('email_login')
+    password_session = request.session.get('password_login')
+    otp_code_session = request.session.get('otp_code_login')
+
+    otp_code = request.POST.get('otp_code_for_login')
+    print('otp_code',otp_code)
+    if otp_code_session == otp_code:
+        username = User.objects.get(email=email_session)
+        user = authenticate(request, username=username.username, password=password_session)
+        print(username)
+        print(password_session)
         if user is not None:
             login(request, user)
-            messages.success(request, 'User logened', 'success')
+            messages.success(request, 'User logged in successfully','success')
             return redirect("main")
-        messages.success(request, 'User dose not exist', 'danger')
-        return redirect("login")
-    return render(request, 'customer_login.html')
+        else:
+            messages.success(request, 'email or password error','danger')
+            return redirect("login")
+    else:
+        messages.success(request, 'OTP is wrong','danger')
+        return redirect("verify_login")
+
+    
+
 
 
 def Logout_view(request):

@@ -4,12 +4,8 @@
 <form action="{% url "verify" %}" method="POST">
 
     {% csrf_token %}
+    otp code plz
     <input type="text" name="otp_code">
     <input type="hidden" value="{{email}}" name="email" name="email">
     <button type="submit">click</button>
 </form>
-
-
-
-
-

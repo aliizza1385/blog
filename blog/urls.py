@@ -1,7 +1,7 @@
 from django.urls import path,include
 from . import views
 from rest_framework import routers
-from .views import UserCrud,handle_react_data,TagCrud,CategoryCrud ,Comments_RUD ,Main ,post_detail,filter_category, search,Login, Register,Logout_view, main_left, replis, like_post, verify
+from .views import UserCrud,handle_react_data,TagCrud,CategoryCrud ,Comments_RUD ,Main ,post_detail,filter_category, search,Login, Register,Logout_view, main_left, replis, like_post, verify_register, verify_login
 
 
 router = routers.SimpleRouter()
@@ -31,7 +31,8 @@ urlpatterns = [
     path('main/category/<slug:slug>', filter_category, name='filter_category'),
     path('search/', search, name='search'),
     path('replis/', replis, name='replis'),
-    path('verify/', verify, name='verify'),
+    path('verify/', verify_register, name='verify'),
+    path('verify-login/', verify_login, name='verify_login'),
     path('like/<int:post_id>', like_post, name='like_post'),
 
 
