@@ -270,8 +270,7 @@ def Login(request):
         request.session['email_login'] = E
         request.session['password_login'] = P
         otp_random = random.randrange(10000, 99999)
-        send_mail(subject='For otp login in blog website', message=f'Your OTP is: {
-                  otp_random}', from_email=EMAIL_HOST_USER, recipient_list=[E])
+        send_mail(subject='For otp login in blog website', message=f'Your OTP is: {otp_random}', from_email=EMAIL_HOST_USER, recipient_list=[E])
 
         request.session['otp_code_login'] = otp_random
 
@@ -289,8 +288,8 @@ def verify_login(request):
 
     if otp_code_session == otp_code:
         username = User.objects.get(email=email_session)
-        user = authenticate(
-            request, username=username.username, password=password_session)
+        user = authenticate(request, username=username.username, password=password_session)
+        
         if user is not None:
             login(request, user)
             messages.success(request, 'User logged in successfully', 'success')
