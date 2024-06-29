@@ -274,32 +274,38 @@ def Login(request):
 
         request.session['otp_code_login'] = otp_random
 
-        return render(request, 'verify_email_login.html')
+        return redirect('verify_login')
 
     return render(request, 'customer_login.html')
 
 
 def verify_login(request):
-    email_session = request.session.get('email_login')
-    password_session = request.session.get('password_login')
-    otp_code_session = request.session.get('otp_code_login')
+    if request.method == "POST":
+        email_session = request.session.get('email_login')
+        password_session = request.session.get('password_login')
+        otp_code_session = request.session.get('otp_code_login')
+        print('email_session',email_session)
+        print('password_session',password_session)
+        print('otp_code_session',otp_code_session)
+        otp_code = request.POST.get('otp_code_for_login')
+        otp_code = int(otp_code)
 
-    otp_code = request.POST.get('otp_code_for_login')
+        if otp_code_session == otp_code:
+            username = User.objects.get(email=email_session)
+            user = authenticate(request, username=username.username, password=password_session)
 
-    if otp_code_session == otp_code:
-        username = User.objects.get(email=email_session)
-        user = authenticate(request, username=username.username, password=password_session)
-        
-        if user is not None:
-            login(request, user)
-            messages.success(request, 'User logged in successfully', 'success')
-            return redirect("main")
+            if user is not None:
+                login(request, user)
+                messages.success(request, 'User logged in successfully', 'success')
+                return redirect("main")
+            else:
+                messages.success(request, 'email or password error', 'danger')
+                return redirect("login")
         else:
-            messages.success(request, 'email or password error', 'danger')
-            return redirect("login")
-    else:
-        messages.success(request, 'OTP is wrong', 'danger')
-        return redirect("verify_login")
+            messages.success(request, 'OTP is wrong', 'danger')
+        return redirect('verify_login')
+    return render(request,'verify_email_login.html')
+
 
 
 def Logout_view(request):
