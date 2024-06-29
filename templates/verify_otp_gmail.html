@@ -1,8 +1,5 @@
 {% include 'massages.html' %}
-
-
 <form action="{% url "verify" %}" method="POST">
-
     {% csrf_token %}
     otp code plz
     <input type="text" name="otp_code">

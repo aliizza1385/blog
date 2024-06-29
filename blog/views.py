@@ -72,7 +72,6 @@ class handle_react_data(ModelViewSet):
         response_data = {"id": p.id}
 
         return Response(response_data)
-        # auther = request.POST.get('auther')
 
     def delete(self, request, *args, **kwargs):
         return super().delete(request, *args, **kwargs)
@@ -86,11 +85,9 @@ class handle_react_data(ModelViewSet):
         image = request.FILES.get('image')  # Get the uploaded image
         post_id = kwargs.get('pk')
         p = Post.objects.get(id=post_id)
-        # old_tags = list(p.tag.values_list('id', flat=True))
         if tag:
             p.tag.clear()
 
-        # print(old_tags)
         if image:
             p.title = title
             p.content = content
@@ -196,15 +193,16 @@ def Register(request):
         otp_random = random.randrange(10000, 99999)
         try:
 
-            if User.objects.filter(email=email, is_active = True).exists():
+            if User.objects.filter(email=email, is_active=True).exists():
                 messages.error(request, 'The user already exists', 'danger')
                 return redirect('register')
-            
-            elif User.objects.filter(username=username, is_active = True).exists():
+
+            elif User.objects.filter(username=username, is_active=True).exists():
                 messages.error(request, 'The user already exists', 'danger')
                 return redirect('register')
             else:
-                send_mail(subject='For otp in blog website', message=f'Your OTP is: {otp_random}', from_email=EMAIL_HOST_USER, recipient_list=[email])
+                send_mail(subject='For otp in blog website', message=f'Your OTP is: {
+                          otp_random}', from_email=EMAIL_HOST_USER, recipient_list=[email])
                 hashed_password = make_password(password)
 
                 image = request.FILES.get('img')
@@ -213,7 +211,7 @@ def Register(request):
                 user.save()
                 request.session['otp_random'] = otp_random
                 request.session['email'] = email
-                return render(request, 'verify_otp_gmail.html',{'email':email})
+                return render(request, 'verify_otp_gmail.html', {'email': email})
 
         except Exception as e:
             messages.error(
@@ -241,8 +239,8 @@ def verify_register(request):
             return redirect('main')
         else:
             messages.success(request, 'OTP is wrong', 'danger')
-            return redirect('verify')       
-    return render(request, 'verify_otp_gmail.html',{'email':emali_from_session})
+            return redirect('verify')
+    return render(request, 'verify_otp_gmail.html', {'email': emali_from_session})
 
 
 def Main(request):
@@ -273,12 +271,13 @@ def Login(request):
         request.session['email_login'] = E
         request.session['password_login'] = P
         otp_random = random.randrange(10000, 99999)
-        send_mail(subject='For otp login in blog website', message=f'Your OTP is: {otp_random}', from_email=EMAIL_HOST_USER, recipient_list=[E])
+        send_mail(subject='For otp login in blog website', message=f'Your OTP is: {
+                  otp_random}', from_email=EMAIL_HOST_USER, recipient_list=[E])
 
         request.session['otp_code_login'] = otp_random
 
-        return render(request,'verify_email_login.html')
-    
+        return render(request, 'verify_email_login.html')
+
     return render(request, 'customer_login.html')
 
 
@@ -288,25 +287,21 @@ def verify_login(request):
     otp_code_session = request.session.get('otp_code_login')
 
     otp_code = request.POST.get('otp_code_for_login')
-    print('otp_code',otp_code)
+
     if otp_code_session == otp_code:
         username = User.objects.get(email=email_session)
-        user = authenticate(request, username=username.username, password=password_session)
-        print(username)
-        print(password_session)
+        user = authenticate(
+            request, username=username.username, password=password_session)
         if user is not None:
             login(request, user)
-            messages.success(request, 'User logged in successfully','success')
+            messages.success(request, 'User logged in successfully', 'success')
             return redirect("main")
         else:
-            messages.success(request, 'email or password error','danger')
+            messages.success(request, 'email or password error', 'danger')
             return redirect("login")
     else:
-        messages.success(request, 'OTP is wrong','danger')
+        messages.success(request, 'OTP is wrong', 'danger')
         return redirect("verify_login")
-
-    
-
 
 
 def Logout_view(request):
@@ -363,7 +358,6 @@ def replis(request):
         R.parent_comment = Comment.objects.get(id=Comment_id)
         R.user = user
         R.save()
-        print(Comment_id)
         messages.success(request, 'reply added', 'success')
         return redirect("main")
 
