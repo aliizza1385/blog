@@ -9,9 +9,13 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.hashers import make_password
 from django.core.paginator import Paginator
 from django.contrib import messages
-
+from django.core.mail import send_mail
+from blog_project.settings import EMAIL_HOST_USER
+import random
 
 # this for Category Crud
+
+
 class CategoryCrud(ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
@@ -188,23 +192,56 @@ def Register(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         email = request.POST.get('email')
-        password = request.POST.get('password')  # Corrected field name
+        password = request.POST.get('password')
+        otp_random = random.randrange(10000, 99999)
+        try:
+            # Send OTP via email (you can customize the email content)
+            if User.objects.filter(email=email, is_active = True).exists():
+                messages.error(request, 'The user already exists', 'danger')
+                return redirect('register')
+            
+            elif User.objects.filter(username=username, is_active = True).exists():
+                messages.error(request, 'The user already exists', 'danger')
+                return redirect('register')
+            else:
+                send_mail(subject='For otp in blog website', message=f'Your OTP is: {otp_random}', from_email=EMAIL_HOST_USER, recipient_list=[email])
+                hashed_password = make_password(password)
+                image = request.FILES.get('img')
+                user = User(username=username, email=email,
+                            password=hashed_password, image=image, is_active=False)
+                user.save()
+                request.session['otp_random'] = otp_random
+                request.session['email'] = email
+                return render(request, 'verify_otp_gmail.html',{'email':email})
 
-        # Hash the password
-        hashed_password = make_password(password)
-
-        if User.objects.filter(username=username).exists():
-            messages.error(request, 'The user already exists', 'danger')
+        except Exception as e:
+            messages.error(
+                request, 'Error sending OTP. Please check your email address.', 'danger')
             return redirect('register')
-        else:
-            image = request.FILES.get('img')
-            user = User(username=username, email=email,
-                        password=hashed_password, image=image)
-            user.save()  # Save the user object
-            messages.success(request, 'User created', 'success')
-            return redirect('main')
 
     return render(request, 'register.html')
+
+
+def verify(request):
+    emali_from_session = request.session.get('email')
+    if request.method == 'POST':
+        otp_code = request.POST.get('otp_code')
+        email = request.POST.get('email')
+        user = get_object_or_404(User, email=email)
+        # we get information like string we must change that to int
+        otp_code = int(otp_code)
+        # we must have otp_random,emali we save that in register fuction
+        otp_random_from_session = request.session.get('otp_random')
+        # otp i send and otp user send to backend
+        if otp_code == otp_random_from_session:
+            user.is_active = True
+            user.save()
+            messages.success(request, 'User created', 'success')
+            return redirect('main')
+        else:
+            messages.success(request, 'OTP is wrong', 'danger')
+            return redirect('verify')       
+    return render(request, 'verify_otp_gmail.html',{'email':emali_from_session})
 
 
 def Main(request):
@@ -255,7 +292,7 @@ def post_detail(request, pk):
         c.post = Post.objects.get(id=pk)
         c.user = request.user  # Use the authenticated user
         c.save()
-    
+
     p = Post.objects.get(id=pk)
     comments = Comment.objects.filter(post=p)
     return render(request, 'post-details-1.html', {'post': p, 'comments': comments})
@@ -276,7 +313,8 @@ def filter_category(request, slug):
 def search(request):
     search_query = request.GET.get("q", "")
     results = Post.objects.filter(title__icontains=search_query)
-    paginator = Paginator(results, 3)  # Define the paginator after filtering results
+    # Define the paginator after filtering results
+    paginator = Paginator(results, 3)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     t = Tag.objects.all()
@@ -286,7 +324,7 @@ def search(request):
 
 def replis(request):
     if request.method == 'POST':
-        repliy = request.POST.get("message") 
+        repliy = request.POST.get("message")
         Comment_id = request.POST['comment_id']
         user = request.user
         R = ReplyComment()
@@ -297,7 +335,6 @@ def replis(request):
         print(Comment_id)
         messages.success(request, 'reply added', 'success')
         return redirect("main")
-    
 
 
 def like_post(request, post_id):

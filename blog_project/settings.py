@@ -17,6 +17,15 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'otptest2024@gmail.com'
+
+EMAIL_HOST_PASSWORD = 'csredkildzkgdokz'
+EMAIL_PORT = '587'
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -177,3 +186,7 @@ CSRF_TRUSTED_ORIGINS = ["http://localhost:5173","http://localhost","http://127.0
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'blog.User'
+
+
+
+
