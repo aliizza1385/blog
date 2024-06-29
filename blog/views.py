@@ -201,8 +201,7 @@ def Register(request):
                 messages.error(request, 'The user already exists', 'danger')
                 return redirect('register')
             else:
-                send_mail(subject='For otp in blog website', message=f'Your OTP is: {
-                          otp_random}', from_email=EMAIL_HOST_USER, recipient_list=[email])
+                send_mail(subject='For otp in blog website', message=f'Your OTP is: {otp_random}', from_email=EMAIL_HOST_USER, recipient_list=[email])
                 hashed_password = make_password(password)
 
                 image = request.FILES.get('img')
