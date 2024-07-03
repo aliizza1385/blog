@@ -1,5 +1,5 @@
 from .models import Post
-from django.shortcuts import render, redirect, get_object_or_404, reverse
+from django.shortcuts import render, redirect, get_object_or_404
 from .serializers import CommentSerializer, PostSerializer, UserSerializer, TagSerializer, CategorySerializer
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
@@ -13,9 +13,8 @@ from django.core.mail import send_mail
 from blog_project.settings import EMAIL_HOST_USER
 import random
 
+
 # this for Category Crud
-
-
 class CategoryCrud(ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
@@ -44,8 +43,8 @@ class handle_react_data(ModelViewSet):
         # Modify the image URL for each post
         for post_data in data:
             image_url = post_data.get('image')
-            modified_image_url = Host + image_url  # Modify the URL as needed
-            post_data['image'] = modified_image_url  # Update the 'image' field
+            modified_image_url = Host + image_url  
+            post_data['image'] = modified_image_url  
 
         response = Response(data)
         response.headers['Access-Control-Expose-Headers'] = 'Content-Range'
@@ -122,15 +121,14 @@ class UserCrud(ModelViewSet):
         # Modify the image URL for each post
         for post_data in data:
             image_url = post_data.get('image')
-            modified_image_url = Host + image_url  # Modify the URL as needed
-            post_data['image'] = modified_image_url  # Update the 'image' field
+            modified_image_url = Host + image_url 
+            post_data['image'] = modified_image_url
         response = Response(data)
         response.headers['Access-Control-Expose-Headers'] = 'Content-Range'
         response.headers["Content-Range"] = len(qs)
         return response
 
     def update(self, request, *args, **kwargs):
-        # data = json.loads(request.POST)
         username = request.POST.get('username')
         email = request.POST.get('email')
         password = request.POST.get('password')
@@ -343,7 +341,6 @@ def filter_category(request, slug):
 def search(request):
     search_query = request.GET.get("q", "")
     results = Post.objects.filter(title__icontains=search_query)
-    # Define the paginator after filtering results
     paginator = Paginator(results, 3)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
