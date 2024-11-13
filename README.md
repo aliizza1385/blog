@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <title>Blog Project</title>
 </head>
 <body>
     <h1>Blog Project</h1>
